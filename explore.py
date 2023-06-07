@@ -19,7 +19,7 @@ def get_score_distribution(df, topics_list= None):
     fig.show()
     print(num_topics, topics_list, (values.to_numpy()/len(df))* 100, values)
 
-df = pd.read_csv("naukri_data_science_jobs_india_cleaned_clusterd.csv", converters={"Skills/Description":pd.eval},index_col=0)
+df = pd.read_csv("data/naukri_data_science_jobs_india_cleaned_clusterd.csv", converters={"Skills/Description":pd.eval}, index_col=0)
 #get_score_distribution(df)
 
 tmp = df[df["lda_topic"]==7]

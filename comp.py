@@ -11,7 +11,7 @@ def helper_clean(column):
 df = pd.read_csv("musthave_dice_naruki_100d.model",sep=" ",header=None,skiprows=[0])
 df_em = df.loc[:,0]
 
-df_data = pd.read_csv("naukri_data_science_jobs_india.csv")
+df_data = pd.read_csv("data/naukri_data_science_jobs_india.csv")
 df_data = df_data.drop(columns=['Company', 'Location', 'Job Experience'])
 df_data["Skills/Description"] =df_data["Skills/Description"].apply(lambda x : helper(x))
 
