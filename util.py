@@ -33,20 +33,57 @@ def create_edgeindex(emb,df,undirected=False):
     return emb,edge_index
 
 
-def create_dataset(doc2vec=True,train=True):
+def create_dataset(doc2vec=True,test=True):
     if doc2vec :
         model = Doc2Vec.load("model/doc2vec")
     else: model = Word2Vec.load("model/word2vec")
 
-    if train:
-        df= pd.read_csv("data/naukri_data_science_jobs_india_cleaned_clusterd.csv",converters={"Skills/Description": pd.eval})
-    else : df= pd.read_csv("data/naukri_data_science_jobs_india_cleaned_clusterd_test.csv",converters={"Skills/Description": pd.eval})
+
+    df= pd.read_csv("data/naukri_data_science_jobs_india_cleaned_clusterd.csv",converters={"Skills/Description": pd.eval})
 
     # Todo for word2vec
     #Todo incorperate test
     embbedding = df["Skills/Description"].apply(lambda x: model.infer_vector(x))
-    print(type(embbedding),type(embbedding[0]))
-    return create_edgeindex(embbedding,df),df["lda_topic"].to_numpy()
+    x, edge_index = create_edgeindex(embbedding, df)
+    y = torch.from_numpy(df["lda_topic"].to_numpy())
+
+    if test:
+        df2 = pd.read_csv("data/naukri_data_science_jobs_india_cleaned_clusterd_test.csv",
+                         converters={"Skills/Description": pd.eval})
+        embbedding = df2["Skills/Description"].apply(lambda x: model.infer_vector(x))
+        x = torch.cat((x, torch.from_numpy(np.stack(embbedding.values))))
+        y = torch.from_numpy(df2["lda_topic"].to_numpy())
+        print(y,y.shape)
+
+    return x,edge_index,y
+
+def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=True):
+    # we assume all curves have the same length
+    # if we use combined we also assume that loss is always the last
+    if combined:
+        fig, (axs, ax2) = plt.subplots(1, 2, sharex="all")
+        ax2.grid(True)
+    else:
+        fig, axs = plt.subplots()
+
+    x = np.arange(0, epochs)
+
+    colors = ["mediumslateblue", "plum", "mediumslateblue"]
+    for i in range(len(curves)):
+        if i == len(curves) - 1 and combined:  # last elem
+            ax2.plot(x, curves[i], label=labels[i], color=colors[i])
+
+        else:
+            axs.plot(x, curves[i], label=labels[i], color=colors[i])
+            axs.legend()
+
+    fig.suptitle(title)
+    axs.grid(True)
+    plt.xlim([0, epochs + 1])
+    plt.subplots_adjust(wspace=0.4)
+    plt.legend()
+    plt.savefig("plots/" + file_name + ".svg")
+    plt.show()
 
 if __name__ == '__main__':
     create_dataset(True)

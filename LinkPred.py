@@ -6,8 +6,8 @@ import numpy as np
 from torch.nn.functional import relu
 from torch_geometric.nn import GCNConv
 
-
 import util
+
 
 class GNN(torch.nn.Module):
     """
@@ -51,106 +51,109 @@ class NN(torch.nn.Module):
         h = self.output(X)
         return h
 
-def train(batchsize, x, edge_index, y,optimizer, gnn, nn):
-    criterion = torch.nn.CrossEntropyLoss()
 
-    # generating random permutation
-    permutation = torch.randperm(x.shape[0]-8)
-    total_loss = []
-    num_sample = 0
+class model():
 
-    # todo another tqdm maybe ?
-    for i in range(0, x.shape[0]-8, batchsize):
-        optimizer.zero_grad()
-        # Set up the batch
-        idx = permutation[i:i + batchsize]
-        src,tar = x[idx+8],y[idx]
+    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005,epochs=50, batchsize=None):
+        # model parameters
+        self.gnn = GNN()
+        self.nn = NN()
+        if load_model:
+            self.gnn.load_state_dict(torch.load("model/gnn_11064_50_0.0005"))
+            self.nn.load_state_dict(torch.load("model/nn_11064_50_0.0005"))
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.x, self.edge_index, self.y = util.create_dataset(test=load_test)
+        self.optimizer = torch.optim.Adam(list(self.gnn.parameters()) + list(self.nn.parameters()), lr=lr)
+        self.epochs= epochs
+        self.lr=lr
+        if batchsize is None:
+            self.batchsize = self.edge_index.shape[1]
+        else:
+            self.batchsize = batchsize
 
+        self.save_model = save_model
+        self.gnn.to(self.device), self.nn.to(self.device)
+
+    def train(self,plot_train=False):
+        criterion = torch.nn.CrossEntropyLoss()
+        np.random.default_rng()
+
+        # generating random permutation
+        permutation = torch.randperm(self.x.shape[0] - 8)
+        total_loss = []
+        error=[0]*self.epochs
+        num_sample = 0
+
+        # TODO change tqdm to floor len(dat)/bvatchsize *epochs
+        with tqdm(range(self.epochs), desc="Training epochs") as pbar:
+            for j in pbar:
+                for i in range(0, self.x.shape[0] - 8, self.batchsize):
+                    self.optimizer.zero_grad()
+                    # Set up the batch
+                    idx = permutation[i:i + self.batchsize]
+                    src, tar = idx + 8, self.y[idx]
+
+                    # add links to all "centers"
+                    links= torch.vstack((torch.asarray(src.tolist()*8),
+                                  torch.asarray(torch.arange(0, 8).tolist()*self.batchsize)))
+                    tmp = utils.to_dense_adj(self.edge_index.type(torch.int64)).squeeze()
+                    tmp = utils.dense_to_sparse(tmp)[0]
+                    tmp = torch.cat((tmp, links),dim=1)
+                    graph_rep = self.gnn(self.x, tmp)
+
+                    # positive sampling
+                    out = torch.sigmoid(self.nn(graph_rep[src]))
+                    loss = torch.mean(criterion((out + 1e-15), tar))
+
+                    # backward pass
+                    loss.backward()
+                    self.optimizer.step()
+
+                    total_loss.append(loss)
+                    num_sample += self.batchsize
+                error[j] = sum(total_loss) / num_sample
+                if j == self.epochs - 1:
+                    if self.save_model:
+                        torch.save(self.gnn.state_dict(), "model/gnn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
+                        torch.save(self.nn.state_dict(), "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
+                    if plot_train:
+                        util.plot_curves(epochs, [loss],
+                                         ["Trainings Error"], 'Model Error',
+                                         file_name="GNN" + "performance")
+
+    # Todo do 1  and top 3
+    @torch.no_grad()
+    def test(self,topk=1):
+        src, tar = torch.arange(self.x.shape[0]-self.y.shape[0],self.x.shape[0]), self.y
         # add links to all "centers"
-        train_tar = torch.arange(0,8)
-        tmp = utils.to_dense_adj(edge_index.type(torch.int64)).squeeze()
-        tmp[idx,train_tar] = 1
-        tmp[train_tar, idx] = 1
+        links = torch.vstack((torch.asarray(src.tolist() * 8),
+                              torch.asarray(torch.arange(0, 8).tolist()*self.y.shape[0])))
+        tmp = utils.to_dense_adj(self.edge_index.type(torch.int64)).squeeze()
         tmp = utils.dense_to_sparse(tmp)[0]
-        graph_rep = gnn(x, tmp)
+        tmp = torch.cat((tmp, links), dim=1)
+        graph_rep = self.gnn(self.x, tmp)
 
-        # positive sampling
-        out = torch.sigmoid(nn(graph_rep[idx]))
-        loss = torch.mean(criterion((out + 1e-15),tar))
+        preds=[]
+        preds += [torch.sigmoid(self.nn(graph_rep[src]).cpu())]
+        preds = [torch.softmax(x,dim=1) for x in preds]
+        preds = [torch.topk(x, topk)[1] for x in preds]
 
-        # backward pass
-        loss.backward()
-        optimizer.step()
-
-        total_loss.append(loss)
-        num_sample += batchsize
-
-    return sum(total_loss) / num_sample
-
-@torch.no_grad()
-#Todo do 1  and top 3
-def test(batchsize, data_set, x, adj, evaluator, gnn, nn, accuracy=False):
-
-    # add links to all "centers"
-    train_tar = torch.arange(0, 8)
-    edge_index = utils.to_dense_adj(edge_index)
-    edge_index[src, train_tar] = 1
-    edge_index[train_tar, src] = 1
-    tmp = utils.to_edge_index(edge_index)
-    graph_rep = gnn(x, tmp)
-
-    pos_preds = []
-    for i in range(0, src.shape[0], batchsize):
-        #Todo this
-        preds += [torch.sigmoid(nn(graph_rep[src_tmp]).squeeze().cpu())]
-        preds = [torch.softmax(x) for x in preds]
-
-        preds = [torch.topk(x,3)[1] for x in preds] if top3 else [torch.topk(x,1) for x in preds]
-
-    #TODO this needs to be done
-    return pred
+        return preds
 
 
-def main(batchsize=1, epochs=1, save=False,train_model=True, load=False, plot=False):
+def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=False):
     # ----------------------- Set up globals
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    np.random.default_rng()
-
-    data,y = util.create_dataset()
-    x,edge_index = data[0],data[1]
-    # Todo move this into function
-    y = torch.from_numpy(y)
-
-    # initilaization models
-    gnn, nn = GNN(), NN()
-    if load:
-        gnn.load_state_dict(torch.load("models/gnn_2100_50_0015"))
-        nn.load_state_dict(torch.load("models/nn_2100_50_0015"))
-    gnn.to(device), nn.to(device)
-
-    optimizer = torch.optim.Adam(list(gnn.parameters()) + list(nn.parameters()), lr=0.0005)
-
-    with tqdm(range(epochs),desc="Training epochs") as pbar:
-        for i in pbar:
-            if train_model:
-                loss[i] = train(batchsize, x, edge_index,y, optimizer, gnn, nn).detach()
-            #test_mrr[i] = 0  # test(batchsize, test_set, data.x, data.adj_t, evaluator, gnn, nn)
-
-            if train_mrr[i] > best and save:
-                best = train_mrr[i]
-                tmp_gnn = copy.deepcopy(gnn.state_dict())
-                tmp_nn = copy.deepcopy(nn.state_dict())
-
-            if i == epochs - 1:
-                if save:
-                    torch.save(tmp_gnn, "models/gnn_None_50_001_new")
-                    torch.save(tmp_nn, "models/nn_None_50_001_new")
-                if plot:
-                    plots.plot_curves(epochs, [valid_mrr, test_mrr, loss],
-                                      ["Valid MRR", "Test MRR", "Trainings Error"], 'Model Error',
-                                      file_name="GNN" + "performance")
-
-            pbar.set_description(f"Epoch {i}")
+    """
+    # for training
+        test = model(load_model=False,save_model=True,load_test=False)
+        test.train()
+    # for testing
+        test = model(load_model=True,save_model=False,load_test=True)
+        test.test(3) for top 3 or test.test(n) for top n default is 1
+    """
+    test = model(load_model=True,save_model=False)
+    #test.train()
+    print(test.test(3))
 if __name__ == '__main__':
     main()
-#Todo which activation function ?
+# Todo which activation function ?
