@@ -54,7 +54,7 @@ class NN(torch.nn.Module):
 
 class model():
 
-    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005,epochs=50, batchsize=None):
+    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005,epochs=50, batchsize=100):
         # model parameters
         self.gnn = GNN()
         self.nn = NN()
@@ -74,7 +74,7 @@ class model():
         self.save_model = save_model
         self.gnn.to(self.device), self.nn.to(self.device)
 
-    def train(self,plot_train=False):
+    def train(self,plot_train=True):
         criterion = torch.nn.CrossEntropyLoss()
         np.random.default_rng()
 
@@ -92,10 +92,10 @@ class model():
                     # Set up the batch
                     idx = permutation[i:i + self.batchsize]
                     src, tar = idx + 8, self.y[idx]
-
+                   
                     # add links to all "centers"
                     links= torch.vstack((torch.asarray(src.tolist()*8),
-                                  torch.asarray(torch.arange(0, 8).tolist()*self.batchsize)))
+                                  torch.asarray(torch.arange(0, 8).tolist()*src.shape[0])))
                     tmp = utils.to_dense_adj(self.edge_index.type(torch.int64)).squeeze()
                     tmp = utils.dense_to_sparse(tmp)[0]
                     tmp = torch.cat((tmp, links),dim=1)
@@ -151,9 +151,10 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
         test = model(load_model=True,save_model=False,load_test=True)
         test.test(3) for top 3 or test.test(n) for top n default is 1
     """
-    test = model(load_model=True,save_model=False)
-    #test.train()
-    print(test.test(3))
+    test = model(load_model=False,save_model=True,load_test=False)
+
+    test.train()
+    #print(test.test(3))
 if __name__ == '__main__':
     main()
 # Todo which activation function ?
