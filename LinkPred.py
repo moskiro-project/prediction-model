@@ -54,7 +54,7 @@ class NN(torch.nn.Module):
 
 class model():
 
-    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005,epochs=50, batchsize=100):
+    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0015,epochs=50, batchsize=100):
         # model parameters
         self.gnn = GNN()
         self.nn = NN()
@@ -92,7 +92,7 @@ class model():
                     # Set up the batch
                     idx = permutation[i:i + self.batchsize]
                     src, tar = idx + 8, self.y[idx]
-                   
+
                     # add links to all "centers"
                     links= torch.vstack((torch.asarray(src.tolist()*8),
                                   torch.asarray(torch.arange(0, 8).tolist()*src.shape[0])))
@@ -111,15 +111,15 @@ class model():
 
                     total_loss.append(loss)
                     num_sample += self.batchsize
-                error[j] = sum(total_loss) / num_sample
-                if j == self.epochs - 1:
+                error[j] = (sum(total_loss) / num_sample).detach()
+                if j == self.epochs-1:
                     if self.save_model:
                         torch.save(self.gnn.state_dict(), "model/gnn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                         torch.save(self.nn.state_dict(), "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                     if plot_train:
-                        util.plot_curves(epochs, [loss],
-                                         ["Trainings Error"], 'Model Error',
-                                         file_name="GNN" + "performance")
+                        util.plot_curves(self.epochs, [error],
+                                         ["Trainings Error"], 'Trainings Error',
+                                         file_name=(str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr)))
 
     # Todo do 1  and top 3
     @torch.no_grad()
