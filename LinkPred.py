@@ -84,7 +84,6 @@ class model():
         error=[0]*self.epochs
         num_sample = 0
 
-        # TODO change tqdm to floor len(dat)/bvatchsize *epochs
         with tqdm(range(self.epochs), desc="Training epochs") as pbar:
             for j in pbar:
                 for i in range(0, self.x.shape[0] - 8, self.batchsize):
@@ -121,7 +120,6 @@ class model():
                                          ["Trainings Error"], 'Trainings Error',
                                          file_name=(str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr)))
 
-    # Todo do 1  and top 3
     @torch.no_grad()
     def test(self,topk=1):
         src, tar = torch.arange(self.x.shape[0]-self.y.shape[0],self.x.shape[0]), self.y
