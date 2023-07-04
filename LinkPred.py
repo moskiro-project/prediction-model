@@ -151,9 +151,10 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
         test = model(load_model=True,save_model=False,load_test=True)
         test.test(3) for top 3 or test.test(n) for top n default is 1
     """
-    test = model(load_model=False,save_model=True,load_test=False)
-
-    test.train()
+    
+    test = model(load_model=True,save_model=False,load_test=True)
+    test.test(3)
+    
     #print(test.test(3))
 if __name__ == '__main__':
     main()
