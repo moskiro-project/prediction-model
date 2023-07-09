@@ -25,11 +25,7 @@ def extract_entities(text):
     return entities
 
 def main(text = "", doc2vec = True):
-    print("Example Text: " + example_text)
-    input("")
     result = extract_entities(example_text)
-    print("NER Result: " + str(result))
-    input("")
     #example result for testing
     #result = ["statistics", "feature_engineering", "scala", "aws"]
     pred_model = LinkPred.model(load_model=True,save_model=False,load_test=False)
@@ -37,8 +33,6 @@ def main(text = "", doc2vec = True):
         model = Doc2Vec.load("model/doc2vec")
     else: model = Word2Vec.load("model/word2vec")
     embedding = model.infer_vector(result)
-    print("Embedding result: " + str(embedding))
-    input("")
     #print(embedding.shape)
     embedding = embedding.reshape((1, 128))
     #print(embedding.shape)
