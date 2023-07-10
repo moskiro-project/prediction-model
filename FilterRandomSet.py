@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Read the original Excel file
-df = pd.read_excel('MainDatensatz_5067Einträge_LN.xlsx')
+df = pd.read_excel('UncleanedFullDataset.xlsx')
 
 # Get the total number of rows in the file
 total_rows = df.shape[0]
