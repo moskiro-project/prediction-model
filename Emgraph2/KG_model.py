@@ -1,38 +1,57 @@
 import os
 
 import pandas as pd
-
 import numpy as np
+import torch
 
 from emgraph.datasets import BaseDataset, DatasetType
-
 from emgraph.models import ComplEx, ConvKB, DistMult, HolE, TransE
-
 from emgraph.evaluation.protocol import filter_unseen_entities
 
-#classes = (ComplEx, HolE, TransE, ConvKB, DistMult)
+class model():
 
-model = TransE(
-    batches_count=64,
-    seed=0,
-    epochs=3,
-    k=100,
-    eta=10,
-    optimizer="adam",
-    optimizer_params={"lr": 0.001},
-    loss="pairwise",
-    verbose=True,
-    large_graphs=False,
-)
+    def __init__(self, lr=0.0005,epochs=50, batchsize=64):
+        self.lr = lr
+        self.epochs = epochs
+        self.batchsize = batchsize
 
-#path1 = os.path.join(os.getcwd(), "train_data_graph.csv")
+        self.model = TransE(batches_count=self.batchsize,seed=0,epochs=self.epochs,k=100,
+                            eta=10,optimizer="adam",optimizer_params={"lr": self.lr},loss="pairwise",
+                            verbose=False,large_graphs=False,)
 
-train = BaseDataset.load_from_csv(os.getcwd(), "train_data_graph.csv", ',')
-test = BaseDataset.load_from_csv(os.getcwd(), "test_data_graph.csv", ',')
-print(test)
+        self.train_data = BaseDataset.load_from_csv(os.getcwd(), "data/train_data_graph.csv", ',')
+        self.test_data = BaseDataset.load_from_csv(os.getcwd(), "data/test_data_graph.csv", ',')
 
-print("Training data shape: " + str(train.shape))
+    def train(self):
+        model.fit(self.train_train)
 
+    def test(self,topk=1):
+
+        scores = model.predict(self.test_data)
+        preds = scores.reshape(288,8)
+        preds = [torch.topk(x, topk)[1] for x in preds]
+
+        return preds
+
+
+def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=False):
+    # ----------------------- Set up globals
+    """
+    # for training
+        test = model()
+        test.train()
+    # for testing
+        model is currently ot savable
+        test = model()
+        test.train()
+        test.test(3) for top 3 or test.test(n) for top n default is 1
+    """
+
+    test = model()
+    test.train()
+    test.test(3)
+
+"""
 #testdf = pd.DataFrame(test)
 
 #print(testdf.head())
@@ -46,7 +65,7 @@ train = np.concatenate((train, np.array(test_skills)), axis = 0)
 
 print(train.shape) 
 
-model.fit(train)
+
 
 test_jobs = test[test[:,1] == '0']
 
@@ -86,3 +105,5 @@ std_deviation = np.std(scores)
 
 print("Average:", average)
 print("Standard Deviation:", std_deviation)
+
+"""

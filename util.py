@@ -85,5 +85,51 @@ def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=
     plt.savefig("plots/" + file_name + ".svg")
     plt.show()
 
+def KG_data():
+    # Load the Excel file
+    data = pd.read_csv('naukri_data_science_jobs_india_cleaned_clusterd.csv',
+                       converters={"Skills/Description": pd.eval})
+    test = pd.read_csv('naukri_data_science_jobs_india_cleaned_clusterd_test.csv',
+                       converters={"Skills/Description": pd.eval})
+
+    # Train data
+    trainDataFinal = []
+    for index, row in data.iterrows():
+        trainDataFinal.append([index, 0, row["lda_topic"]])
+        for element in row["Skills/Description"]:
+            trainDataFinal.append([index, 1, element])
+
+    # Test data --> we only want to predicti te role so skills are added to train
+    testDataFinal = []
+    for index, row in test.iterrows():
+        testDataFinal.append([index+len(data), 0, row["lda_topic"]])
+        for element in row["Skills/Description"]:
+            trainDataFinal.append([index+len(data), 1, element])
+
+    # Save the train and test datasets to separate Excel files
+    trainDf = pd.DataFrame(trainDataFinal, columns=["head", "relation", "tail"])
+    testDf_org = pd.DataFrame(testDataFinal, columns=["head", "relation", "tail"])
+    #testDf = pd.DataFrame(test_data_preprocessed, columns=["head", "relation", "tail"])
+
+
+    # Add other categories in for ranking
+    ids = testDf_org.index
+    test_data_preprocessed = np.zeros((testDf_org.shape[0] * 8, testDf_org.shape[1]))
+
+    for i in range(8):
+        test_data_preprocessed[i * testDf_org.shape[0]:(i + 1) * testDf_org.shape[0], 0] = ids
+        test_data_preprocessed[:, 1] = '0'
+        test_data_preprocessed[i * testDf_org.shape[0]:(i + 1) * testDf_org.shape[0], 2] = str(i)
+
+    testDf = pd.DataFrame(test_data_preprocessed,columns=["head","relation","tail"])
+
+
+    trainDf.to_csv('data/train_data_graph.csv', index=False)
+    testDf.to_csv('data/test_data_graph.csv', index=False)
+    testDf_org.to_csv('data/test_data_graph_org.csv', index=False)
+    #train_data.to_csv('train_data.csv', index=False)
+    #test_data.to_csv('test_data.csv', index=False)
+
 if __name__ == '__main__':
     create_dataset(True)
+    KDE_data()
