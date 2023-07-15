@@ -12,12 +12,12 @@ data = pd.read_csv('naukri_data_science_jobs_india_cleaned_clusterd.csv')
 train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 
 for index, row in train_data.iterrows():
-    trainDataFinal.append([index, 0, row["Job_Role"]])
+    trainDataFinal.append([index, 0, row["lda_topic"]])
     for element in ast.literal_eval(row["Skills/Description"]):
         trainDataFinal.append([index, 1, element])
 
 for index, row in test_data.iterrows():
-    testDataFinal.append([index, 0, row["Job_Role"]])
+    testDataFinal.append([index, 0, row["lda_topic"]])
     for element in ast.literal_eval(row["Skills/Description"]):
         testDataFinal.append([index, 1, element])
 
