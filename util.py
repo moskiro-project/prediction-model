@@ -18,9 +18,9 @@ df_data.to_csv("naukri_data_science_jobs_india_cleaned.csv",index=False)
 
 def create_edgeindex(emb,df,undirected=False):
     src,tar = [],[]
-    avg = torch.zeros((8,128))
+    avg = torch.zeros((8,100))
     for i in range(0,8):
-        idx = df[df["lda_topic"] == i].index
+        idx = df[df["newCluster"] == i].index
         avg[i]= torch.from_numpy(np.mean(emb[idx]))
         src += idx.to_list()
         tar += [i]*len(idx)
@@ -35,24 +35,24 @@ def create_edgeindex(emb,df,undirected=False):
 
 def create_dataset(doc2vec=True,test=True):
     if doc2vec :
-        model = Doc2Vec.load("model/doc2vec")
-    else: model = Word2Vec.load("model/word2vec")
+        model = Doc2Vec.load("model/doc2vec_newData")
+    else: model = Word2Vec.load("model/word2vec_newData")
 
 
-    df= pd.read_csv("data/naukri_data_science_jobs_india_cleaned_clusterd.csv",converters={"Skills/Description": pd.eval})
+    df= pd.read_csv("data/Complete_Data_Clustered_Cleaned.csv",converters={"Skills/Description": pd.eval})
 
     # Todo for word2vec
     #Todo incorperate test
     embbedding = df["Skills/Description"].apply(lambda x: model.infer_vector(x))
     x, edge_index = create_edgeindex(embbedding, df)
-    y = torch.from_numpy(df["lda_topic"].to_numpy())
+    y = torch.from_numpy(df["newCluster"].to_numpy())
 
     if test:
-        df2 = pd.read_csv("data/naukri_data_science_jobs_india_cleaned_clusterd_test.csv",
+        df2 = pd.read_csv("data/Complete_Data_Clustered_Cleaned_test.csv",
                          converters={"Skills/Description": pd.eval})
         embbedding = df2["Skills/Description"].apply(lambda x: model.infer_vector(x))
         x = torch.cat((x, torch.from_numpy(np.stack(embbedding.values))))
-        y = torch.from_numpy(df2["lda_topic"].to_numpy())
+        y = torch.from_numpy(df2["newCluster"].to_numpy())
         print(y,y.shape)
 
     return x,edge_index,y

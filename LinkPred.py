@@ -17,7 +17,7 @@ class GNN(torch.nn.Module):
     def __init__(self):
         # build GNN here
         super(GNN, self).__init__()
-        self.input = GCNConv(128, 256, bias=False)
+        self.input = GCNConv(100, 256, bias=False)
         self.hidden = GCNConv(256, 256, bias=False)
         self.output = GCNConv(256, 256, bias=False)
 
@@ -40,7 +40,7 @@ class NN(torch.nn.Module):
         super(NN, self).__init__()
         self.input = torch.nn.Linear(256, 256, bias=False)
         self.hidden = torch.nn.Linear(256, 256, bias=False)
-        self.output = torch.nn.Linear(256, 8, bias=False)
+        self.output = torch.nn.Linear(256, 20, bias=False)
 
     def forward(self, src):
         x = src
@@ -113,11 +113,12 @@ class model():
                     num_sample += self.batchsize
                 error[j] = sum(total_loss) / num_sample
                 if j == self.epochs - 1:
+                    print(error)
                     if self.save_model:
                         torch.save(self.gnn.state_dict(), "model/gnn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                         torch.save(self.nn.state_dict(), "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                     if plot_train:
-                        util.plot_curves(epochs, [loss],
+                        util.plot_curves(self.epochs, [error],
                                          ["Trainings Error"], 'Model Error',
                                          file_name="GNN" + "performance")
 
@@ -152,8 +153,9 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
         test.test(3) for top 3 or test.test(n) for top n default is 1
     """
     
-    test = model(load_model=True,save_model=False,load_test=True)
-    test.test(3)
+    test = model(load_model=False,save_model=True,load_test=False)
+    test.train()
+    #test.test(3)
     
     #print(test.test(3))
 if __name__ == '__main__':

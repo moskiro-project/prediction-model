@@ -161,3 +161,4 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 dataset/ogbl_wikikg2/raw/edge.csv
+20230717_WordDoc2Vec_sowieEvaluation.ipynb
