@@ -1,4 +1,5 @@
 ner_model/
+ner_model_old/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
