@@ -1,5 +1,5 @@
 import os
-
+import tensorflow as tf
 import pandas as pd
 import numpy as np
 import torch
@@ -19,20 +19,32 @@ class model():
                             eta=10,optimizer="adam",optimizer_params={"lr": self.lr},loss="pairwise",
                             verbose=False,large_graphs=False,)
 
-        self.train_data = BaseDataset.load_from_csv(os.getcwd(), "data/train_data_graph.csv", ',')
-        self.test_data = BaseDataset.load_from_csv(os.getcwd(), "data/test_data_graph.csv", ',')
+        self.train_data = BaseDataset.load_from_csv(os.getcwd(), "train_data_graph_new.csv", ',')
+        self.test_data = BaseDataset.load_from_csv(os.getcwd(), "test_data_graph_new.csv", ',')
+        self.test_data = self.test_data[1:,]
 
     def train(self):
-        model.fit(self.train_train)
+        self.model.fit(self.train_data)
 
     def test(self,topk=1):
-
-        scores = model.predict(self.test_data)
-        preds = scores.reshape(288,8)
-        preds = [torch.topk(x, topk)[1] for x in preds]
-
+        testData = filter_unseen_entities(self.test_data, self.model)
+        #print(testData.shape)
+        output = np.zeros((testData.shape[0], 4))
+        output[:,0:3] = testData
+        output[:,3] = self.model.predict(testData)
+        print(output.shape)
+        output = output.reshape(298,20,4)
+        print(output[0])
+        #preds = tf.reshape(scores, (298,20))
+        #preds = tf.transpose(preds)
+        #preds = tf.convert_to_tensor(preds)
+        outputTorch = torch.from_numpy(output)
+        preds = [[x[0][0], torch.topk(x[:,3], topk)[1]] for x in outputTorch]
+        print(preds[0])
+        #values, indices = tf.math.top_k(scores, k=topk, sorted=True)
+        #print(indices[0])
+        #return [indices
         return preds
-
 
 def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=False):
     # ----------------------- Set up globals
@@ -48,8 +60,19 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
     """
 
     test = model()
+    print(test.test_data.shape)
+    print(test.train_data.shape)
+    
     test.train()
-    test.test(3)
+    output = test.test(3)
+    df = pd.DataFrame(output, columns=["Person", "Top3 Predictions"])
+
+    with pd.ExcelWriter("GraphResults.csv") as writer:
+        df.to_csv(writer)
+
+if __name__ == "__main__":
+    main()
+
 
 """
 #testdf = pd.DataFrame(test)
