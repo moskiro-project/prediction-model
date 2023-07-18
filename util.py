@@ -18,8 +18,8 @@ df_data.to_csv("naukri_data_science_jobs_india_cleaned.csv",index=False)
 
 def create_edgeindex(emb,df,undirected=False):
     src,tar = [],[]
-    avg = torch.zeros((8,100))
-    for i in range(0,8):
+    avg = torch.zeros((20,100))
+    for i in range(0,20):
         idx = df[df["newCluster"] == i].index
         avg[i]= torch.from_numpy(np.mean(emb[idx]))
         src += idx.to_list()
@@ -54,7 +54,7 @@ def create_dataset(doc2vec=True,test=True):
         x = torch.cat((x, torch.from_numpy(np.stack(embbedding.values))))
         y = torch.from_numpy(df2["newCluster"].to_numpy())
         print(y,y.shape)
-
+    print(edge_index)
     return x,edge_index,y
 
 def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=True):
