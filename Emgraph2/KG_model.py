@@ -39,8 +39,8 @@ class model():
         #preds = tf.transpose(preds)
         #preds = tf.convert_to_tensor(preds)
         outputTorch = torch.from_numpy(output)
-        preds = [[x[0][0], torch.topk(x[:,3], topk)[1]] for x in outputTorch]
-        print(preds[0])
+        preds = [(int(x[0][0]), (torch.topk(x[:,3], topk))[1].numpy().tolist()) for x in outputTorch]
+        print(preds[0][1])
         #values, indices = tf.math.top_k(scores, k=topk, sorted=True)
         #print(indices[0])
         #return [indices
@@ -66,9 +66,7 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
     test.train()
     output = test.test(3)
     df = pd.DataFrame(output, columns=["Person", "Top3 Predictions"])
-
-    with pd.ExcelWriter("GraphResults.csv") as writer:
-        df.to_csv(writer)
+    df.to_csv("GraphResults.csv")
 
 if __name__ == "__main__":
     main()
