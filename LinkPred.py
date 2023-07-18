@@ -113,7 +113,6 @@ class model():
                     num_sample += self.batchsize
                 error[j] = sum(total_loss) / num_sample
                 if j == self.epochs - 1:
-                    print(error)
                     if self.save_model:
                         torch.save(self.gnn.state_dict(), "model/gnn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                         torch.save(self.nn.state_dict(), "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
@@ -136,11 +135,8 @@ class model():
 
         preds=[]
         preds += [torch.sigmoid(self.nn(graph_rep[src]).cpu())]
-        print(preds)
         preds = [torch.softmax(x,dim=1) for x in preds]
-        print(preds)
         preds = [torch.topk(x, topk)[1] for x in preds]
-        print(preds)
 
         return preds
 
