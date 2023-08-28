@@ -112,14 +112,15 @@ class model():
 
                     total_loss.append(loss)
                     num_sample += self.batchsize
+
                 error[j] = (sum(total_loss) / num_sample).detach()
                 if j == self.epochs-1:
+
                     if self.save_model:
                         torch.save(self.gnn.state_dict(), "model/gnn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                         torch.save(self.nn.state_dict(), "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                     if plot_train:
                         util.plot_curves(self.epochs, [error],
-
                                          ["Trainings Error"], 'Model Error',
                                          file_name="GNN" + "performance")
 
@@ -153,11 +154,13 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
         test.test(3) for top 3 or test.test(n) for top n default is 1
     """
     
-    test = model(load_model=True,save_model=False,load_test=True)
-    #test.train()
-    test.test(3)
+
+    test = model(load_model=False,save_model=True,load_test=False)
+    test.train()
+    #test.test(3)
     
-    print(test.test(3))
+    #print(test.test(3))
+
 if __name__ == '__main__':
     main()
 # Todo which activation function ?
