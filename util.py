@@ -6,21 +6,6 @@ from gensim.models.word2vec import Word2Vec
 import torch
 import matplotlib.pyplot as plt
 
-
-def helper_clean(column):
-    column = column.split(",")
-    for i in range(len(column)):
-        column[i] = column[i].lower().strip().replace(" ", "_")
-    return column
-
-
-df_data = pd.read_csv("data/naukri_data_science_jobs_india.csv")
-df_data = df_data.drop(columns=['Company', 'Location', 'Job Experience'])
-df_data["Skills/Description"] = df_data["Skills/Description"].apply(lambda x: helper_clean(x))
-df_data.to_csv("naukri_data_science_jobs_india_cleaned.csv", index=False)
-
-
-
 def create_edgeindex(emb,df,undirected=False):
     src,tar = [],[]
 
@@ -51,12 +36,6 @@ def create_dataset(doc2vec=True,test=True):
         model = Doc2Vec.load("model/doc2vec_newData")
     else: model = Word2Vec.load("model/word2vec_newData")
 
-
-
-
-    rel_type += [0]*len(src) #translates to has_skil
-
-
     df= pd.read_csv("data/Complete_Data_Clustered_Cleaned.csv",converters={"Skills/Description": pd.eval})
 
 
@@ -72,8 +51,8 @@ def create_dataset(doc2vec=True,test=True):
         embbedding = df2["Skills/Description"].apply(lambda x: model.infer_vector(x))
         x = torch.cat((x, torch.from_numpy(np.stack(embbedding.values))))
         y = torch.from_numpy(df2["newCluster"].to_numpy())
-        print(y,y.shape)
-    print(edge_index)
+        #print(y,y.shape)
+    #print(edge_index)
     return x,edge_index,y
 
 
