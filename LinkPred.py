@@ -55,6 +55,7 @@ class NN(torch.nn.Module):
 class model():
 
     def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005,epochs=50, batchsize=None):
+
         # model parameters
         self.gnn = GNN()
         self.nn = NN()
@@ -84,7 +85,6 @@ class model():
         error=[0]*self.epochs
         num_sample = 0
 
-        # TODO change tqdm to floor len(dat)/bvatchsize *epochs
         with tqdm(range(self.epochs), desc="Training epochs") as pbar:
             for j in pbar:
                 for i in range(0, self.x.shape[0] - 20, self.batchsize):
@@ -92,7 +92,8 @@ class model():
                     # Set up the batch
                     idx = permutation[i:i + self.batchsize]
                     src, tar = idx + 20, self.y[idx]
-                   
+
+
                     # add links to all "centers"
                     links= torch.vstack((torch.asarray(src.tolist()*20),
                                   torch.asarray(torch.arange(0,20).tolist()*src.shape[0])))
@@ -111,17 +112,17 @@ class model():
 
                     total_loss.append(loss)
                     num_sample += self.batchsize
-                error[j] = sum(total_loss) / num_sample
-                if j == self.epochs - 1:
+                error[j] = (sum(total_loss) / num_sample).detach()
+                if j == self.epochs-1:
                     if self.save_model:
                         torch.save(self.gnn.state_dict(), "model/gnn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                         torch.save(self.nn.state_dict(), "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                     if plot_train:
                         util.plot_curves(self.epochs, [error],
+
                                          ["Trainings Error"], 'Model Error',
                                          file_name="GNN" + "performance")
 
-    # Todo do 1  and top 3
     @torch.no_grad()
     def test(self,topk=1):
         src, tar = torch.arange(self.x.shape[0]-self.y.shape[0],self.x.shape[0]), self.y
