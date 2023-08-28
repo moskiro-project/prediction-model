@@ -7,6 +7,7 @@ import spacy
 
 import LinkPred
 
+
 example_text = """Unternehmensbeschreibung
   Securitas ist größter Anbieter professioneller Sicherheitslösungen mit 21.000 Mitarbeitenden in Deutschland und beschäftigt weltweit 358.000 Mitarbeiter in 45 Ländern. Mit unseren Werten Ehrlichkeit, Aufmerksamkeit und Hilfsbereitschaft ist es unser Ziel, die Welt sicherer zu machen.
   Securitas Electronic Security ist Teil der Securitas Gruppe und einer der führenden Anbieter von Sicherheitssystemen in Deutschland. Wir entwickeln innovative und zukunftsweisende Sicherheitskonzepte, bestehend aus maßgeschneiderten Videoüberwachungs-, Zutrittskontroll-, Einbruchmelde- sowie Brandmeldesystemen. Darüber hinaus übernehmen wir Alarmmanagement-Leistungen durch unsere eigenen Notruf- und Serviceleitstellen. Mit 18 Service- und Vertriebsstandorten ist Securitas Electronic Security flächendeckend präsent. Über 500 Mitarbeiter, davon nahe 300 Techniker, sorgen für die Sicherheit unserer Kunden in Deutschland.
@@ -53,6 +54,7 @@ example_text = """Unternehmensbeschreibung
   Hinweis: Sie erklären sich mit Ihrer Einreichung der Bewerbung bereit, dass Ihre Bewerbung innerhalb der Securitas-Gruppe Deutschland und Kooperationspartner weitergeleitet wird. Dadurch erhöhen sich Ihre Bewerbungschancen. Wenn Sie dies nicht wünschen, teilen Sie uns dies bitte in Ihrem Schreiben mit.
   """
 
+
 def extract_entities(text):
     nlp_ner = spacy.load('ner_model')
     doc = nlp_ner(text)
@@ -63,6 +65,7 @@ def extract_entities(text):
     return entities
 
 def main(text = "", doc2vec = True):
+
     print(example_text)
     input()
     result = extract_entities(example_text)
@@ -88,6 +91,7 @@ def main(text = "", doc2vec = True):
     final_prediction = [job for job, similarity in final_prediction]
     print("Final Prediction: " + str(final_prediction))
     input()
+
 
 if __name__ == '__main__':
     main()

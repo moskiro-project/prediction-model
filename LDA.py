@@ -8,7 +8,7 @@ from gensim.models import CoherenceModel
 import random
 
 
-# Todo
+# Todo make nicer plot function
 def plot_lda(data, points):
     data = [x[0] for x in data]
     fig = plt.figure()  # Create matplotlib figure

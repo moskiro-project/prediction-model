@@ -1,5 +1,7 @@
 import os
+
 import tensorflow as tf
+
 import pandas as pd
 import numpy as np
 import torch
@@ -18,6 +20,7 @@ class model():
         self.model = TransE(batches_count=self.batchsize,seed=0,epochs=self.epochs,k=100,
                             eta=10,optimizer="adam",optimizer_params={"lr": self.lr},loss="pairwise",
                             verbose=False,large_graphs=False,)
+
 
         self.train_data = BaseDataset.load_from_csv(os.getcwd(), "train_data_graph_new.csv", ',')
         self.test_data = BaseDataset.load_from_csv(os.getcwd(), "test_data_graph_new.csv", ',')
@@ -60,6 +63,7 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
     """
 
     test = model()
+
     print(test.test_data.shape)
     print(test.train_data.shape)
     
