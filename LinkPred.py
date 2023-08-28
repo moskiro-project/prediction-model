@@ -17,7 +17,7 @@ class GNN(torch.nn.Module):
     def __init__(self):
         # build GNN here
         super(GNN, self).__init__()
-        self.input = GCNConv(128, 256, bias=False)
+        self.input = GCNConv(100, 256, bias=False)
         self.hidden = GCNConv(256, 256, bias=False)
         self.output = GCNConv(256, 256, bias=False)
 
@@ -40,7 +40,7 @@ class NN(torch.nn.Module):
         super(NN, self).__init__()
         self.input = torch.nn.Linear(256, 256, bias=False)
         self.hidden = torch.nn.Linear(256, 256, bias=False)
-        self.output = torch.nn.Linear(256, 8, bias=False)
+        self.output = torch.nn.Linear(256, 20, bias=False)
 
     def forward(self, src):
         x = src
@@ -54,13 +54,14 @@ class NN(torch.nn.Module):
 
 class model():
 
-    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0015,epochs=50, batchsize=100):
+    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005,epochs=50, batchsize=None):
+
         # model parameters
         self.gnn = GNN()
         self.nn = NN()
         if load_model:
-            self.gnn.load_state_dict(torch.load("model/gnn_11064_50_0.0005"))
-            self.nn.load_state_dict(torch.load("model/nn_11064_50_0.0005"))
+            self.gnn.load_state_dict(torch.load("model/gnn_3559_50_0.0005"))
+            self.nn.load_state_dict(torch.load("model/nn_3559_50_0.0005"))
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.x, self.edge_index, self.y = util.create_dataset(test=load_test)
         self.optimizer = torch.optim.Adam(list(self.gnn.parameters()) + list(self.nn.parameters()), lr=lr)
@@ -79,22 +80,23 @@ class model():
         np.random.default_rng()
 
         # generating random permutation
-        permutation = torch.randperm(self.x.shape[0] - 8)
+        permutation = torch.randperm(self.x.shape[0] - 20)
         total_loss = []
         error=[0]*self.epochs
         num_sample = 0
 
         with tqdm(range(self.epochs), desc="Training epochs") as pbar:
             for j in pbar:
-                for i in range(0, self.x.shape[0] - 8, self.batchsize):
+                for i in range(0, self.x.shape[0] - 20, self.batchsize):
                     self.optimizer.zero_grad()
                     # Set up the batch
                     idx = permutation[i:i + self.batchsize]
-                    src, tar = idx + 8, self.y[idx]
+                    src, tar = idx + 20, self.y[idx]
+
 
                     # add links to all "centers"
-                    links= torch.vstack((torch.asarray(src.tolist()*8),
-                                  torch.asarray(torch.arange(0, 8).tolist()*src.shape[0])))
+                    links= torch.vstack((torch.asarray(src.tolist()*20),
+                                  torch.asarray(torch.arange(0,20).tolist()*src.shape[0])))
                     tmp = utils.to_dense_adj(self.edge_index.type(torch.int64)).squeeze()
                     tmp = utils.dense_to_sparse(tmp)[0]
                     tmp = torch.cat((tmp, links),dim=1)
@@ -117,15 +119,16 @@ class model():
                         torch.save(self.nn.state_dict(), "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                     if plot_train:
                         util.plot_curves(self.epochs, [error],
-                                         ["Trainings Error"], 'Trainings Error',
-                                         file_name=(str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr)))
+
+                                         ["Trainings Error"], 'Model Error',
+                                         file_name="GNN" + "performance")
 
     @torch.no_grad()
     def test(self,topk=1):
         src, tar = torch.arange(self.x.shape[0]-self.y.shape[0],self.x.shape[0]), self.y
         # add links to all "centers"
-        links = torch.vstack((torch.asarray(src.tolist() * 8),
-                              torch.asarray(torch.arange(0, 8).tolist()*self.y.shape[0])))
+        links = torch.vstack((torch.asarray(src.tolist() * 20),
+                              torch.asarray(torch.arange(0, 20).tolist()*self.y.shape[0])))
         tmp = utils.to_dense_adj(self.edge_index.type(torch.int64)).squeeze()
         tmp = utils.dense_to_sparse(tmp)[0]
         tmp = torch.cat((tmp, links), dim=1)
@@ -149,10 +152,12 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
         test = model(load_model=True,save_model=False,load_test=True)
         test.test(3) for top 3 or test.test(n) for top n default is 1
     """
-    test = model(load_model=False,save_model=True,load_test=False)
-
-    test.train()
-    #print(test.test(3))
+    
+    test = model(load_model=True,save_model=False,load_test=True)
+    #test.train()
+    test.test(3)
+    
+    print(test.test(3))
 if __name__ == '__main__':
     main()
 # Todo which activation function ?
