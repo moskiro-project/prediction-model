@@ -1,3 +1,5 @@
+# To my (Niki) understanding, we can delete this file because it is the old graph model?
+
 #!/usr/bin/python3
 
 from __future__ import absolute_import

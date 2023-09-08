@@ -10,6 +10,10 @@ from emgraph.datasets import BaseDataset, DatasetType
 from emgraph.models import ComplEx, ConvKB, DistMult, HolE, TransE
 from emgraph.evaluation.protocol import filter_unseen_entities
 
+# This needs to be extended to have a proper interface for training and testing! 
+# Since this graph doesn't have save+load mechanisms, we would need to keep the object around in the testing/evaluation script!
+# Check carefully whether all invalid cases are caught here, e.g. what to do if NER didn't give any results and if everything is formatted in a standardized way
+
 class model():
 
     def __init__(self, lr=0.0005,epochs=50, batchsize=64):

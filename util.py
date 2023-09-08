@@ -30,7 +30,7 @@ def KGE_edgeindex(df,emb):
     skills = df["Skills/Description"].explode().unique().tolist()
     nodes = np.arange(len(df))
 
-
+# have to adapt this to take any file name
 def create_dataset(doc2vec=True,test=True):
     if doc2vec :
         model = Doc2Vec.load("model/doc2vec_newData")
@@ -85,6 +85,7 @@ def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=
     plt.savefig("plots/" + file_name + ".jpg")
     plt.show()
 
+# would be good to adapt this to take any file names, too
 def KG_data():
     # Load the Excel file
 

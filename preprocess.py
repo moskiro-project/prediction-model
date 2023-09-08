@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import random
 
-
+# I don't understand this script, does it have something to do with throwing away clusters smaller than 75 elements?
 
 
 df = pd.read_excel("data/Complete Data Clustered Cleaned.xlsx")

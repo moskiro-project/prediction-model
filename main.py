@@ -1,3 +1,5 @@
+# I believe we can also delete this script, to my (Niki) understanding it doesn't use the Emgraph model we settled for?
+
 from ogb.linkproppred import LinkPropPredDataset, Evaluator
 import model
 dataset = LinkPropPredDataset(name='ogbl-wikikg2')

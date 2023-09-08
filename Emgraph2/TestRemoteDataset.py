@@ -1,3 +1,5 @@
+# Purely for testing purposes, not used in any further scripts.
+
 from sklearn.metrics import brier_score_loss, log_loss
 from scipy.special import expit
 from emgraph.datasets import BaseDataset, DatasetType
