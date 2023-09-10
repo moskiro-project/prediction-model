@@ -7,7 +7,7 @@ import ast
 top3_file = "GraphResults.csv"
 correct_file = "test_data_graph_org_new.csv"
 
-# This would need to be moved into the Evaluation notebook!
+# This has been moved into the Evaluation notebook!
 
 def process_row(row):
     print(row)

@@ -6,9 +6,9 @@ import pandas as pd
 import numpy as np
 import torch
 
-from emgraph.datasets import BaseDataset, DatasetType
-from emgraph.models import ComplEx, ConvKB, DistMult, HolE, TransE
-from emgraph.evaluation.protocol import filter_unseen_entities
+from Emgraph2.emgraph.datasets import BaseDataset, DatasetType
+from Emgraph2.emgraph.models import ComplEx, ConvKB, DistMult, HolE, TransE
+from Emgraph2.emgraph.evaluation.protocol import filter_unseen_entities
 from util import KG_data
 
 # This needs to be extended to have a proper interface for training and testing! 
@@ -18,7 +18,7 @@ from util import KG_data
 class model():
 
     def __init__(self, lr=0.0005,epochs=50, batchsize=64, train_file = './data/Complete_Data_Clustered_Cleaned.csv', test_file = './data/Complete_Data_Clustered_Cleaned_test.csv',
-                 totalClusters = 20):
+                 totalClusters = 20, ground_truth_file = 'data/test_data_graph_org_new.csv'):
         self.lr = lr
         self.epochs = epochs
         self.batchsize = batchsize
@@ -30,9 +30,9 @@ class model():
                             verbose=False,large_graphs=False,)
 
 
-        tr, te = KG_data(train_file, test_file, train_save = "train_data_graph_new.csv", test_save = "test_data_graph_new.csv")
-        self.train_data = BaseDataset.load_from_csv(os.getcwd(), "train_data_graph_new.csv", ',')
-        self.test_data = BaseDataset.load_from_csv(os.getcwd(), "test_data_graph_new.csv", ',')
+        tr, te = KG_data(train_file, test_file, train_save = "./data/train_data_graph_new.csv", test_save = "./data/test_data_graph_new.csv", ground_truth_save=ground_truth_file)
+        self.train_data = BaseDataset.load_from_csv(os.getcwd(), "./data/train_data_graph_new.csv", ',')
+        self.test_data = BaseDataset.load_from_csv(os.getcwd(), "./data/test_data_graph_new.csv", ',')
         self.test_data = self.test_data[1:,]
 
     def train(self):
@@ -46,7 +46,7 @@ class model():
         output[:,0:testDataColumnCount] = testData
         output[:,testDataColumnCount] = self.model.predict(testData)
         # here we reshape to combine all outputs of one person (should check whether this division is valid!)
-        output = output.reshape(testData.shape[0] / self.clusters, self.clusters, testDataColumnCount+1)
+        output = output.reshape((int)(testData.shape[0] / self.clusters), self.clusters, testDataColumnCount+1)
 
         outputTorch = torch.from_numpy(output)
         preds = [(int(x[0][0]), (torch.topk(x[:,3], topk))[1].numpy().tolist()) for x in outputTorch]

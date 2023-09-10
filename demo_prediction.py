@@ -7,6 +7,7 @@ import spacy
 
 import LinkPred
 
+# demo version used in the presentation.
 
 example_text = """Unternehmensbeschreibung
   Securitas ist größter Anbieter professioneller Sicherheitslösungen mit 21.000 Mitarbeitenden in Deutschland und beschäftigt weltweit 358.000 Mitarbeiter in 45 Ländern. Mit unseren Werten Ehrlichkeit, Aufmerksamkeit und Hilfsbereitschaft ist es unser Ziel, die Welt sicherer zu machen.

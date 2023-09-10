@@ -4,6 +4,8 @@ import pandas as pd
 openai.api_key = "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"
 
 
+# This file is not supposed to be in this repo. Check GPTAPI repo if this can be deleted or should be moved.
+
 example_text = """Benenne den Berufstitel für die folgende Beschreibung mit einem Wort: Metallbauer (m/w/d): Das Handwerksunternehmen der Zukunft.
   Sie sind ein Teamplayer? Sie haben Anspruch – an sich selbst und uns? Dann kommen Sie zur HWP Handwerkspartner AG  als Feuerungstechniker (m/w/d)  an unseren Standort GTB Berlin Kundendienst GmbH in Berlin.  GTB Kundendienst Berlin - immer für Sie da. Wir wollen Sie als Kunden zufriedenzustellen, deswegen steht ein guter Service für uns stets an erster Stelle. Egal, ob für ein Beratungsgespräch, einen Wartungstermin oder im Notfall: Der GTB Berlin Kundendienst ist immer für Sie da, wenn Sie ihn brauchen – online, telefonisch und vor Ort.
   Darauf können Sie sich freuen:

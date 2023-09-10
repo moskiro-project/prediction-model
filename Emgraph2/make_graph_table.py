@@ -4,6 +4,9 @@ import time
 import json
 import ast
 
+# This file isn't used anymore, was an attempt to put predictions and ground truth
+# into one single file, unnecessary.
+
 top3_file = "GraphResults.csv"
 correct_file = "test_data_graph_org_new.csv"
 

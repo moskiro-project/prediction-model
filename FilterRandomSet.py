@@ -1,5 +1,7 @@
 import pandas as pd
 
+# I (Niki) believe we can delete this file. Any dataset filtering should be done in the Evaluation.ipynb!
+
 # Read the original Excel file
 df = pd.read_excel('UncleanedFullDataset.xlsx')
 
