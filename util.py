@@ -86,31 +86,34 @@ def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=
     plt.show()
 
 # would be good to adapt this to take any file names, too
-def KG_data():
+def KG_data(train_data_file = './data/Complete_Data_Clustered_Cleaned.csv', test_data_file = './data/Complete_Data_Clustered_Cleaned_test.csv',
+            train_skill_column = "NewSkills_lowercase", test_skill_column = "NewSkills_lowercase",
+            train_save = 'data/train_data_graph_new.csv', test_save = 'data/test_data_graph_new.csv',
+            totalClusters = 20):
     # Load the Excel file
 
-    data = pd.read_csv('./data/Complete_Data_Clustered_Cleaned.csv',
-                       converters={"NewSkills_lowercase": pd.eval})
-    test = pd.read_csv('./data/Complete_Data_Clustered_Cleaned_test.csv',
-                       converters={"NewSkills_lowercase": pd.eval})
+    data = pd.read_csv(train_data_file,
+                       converters={train_skill_column: pd.eval})
+    test = pd.read_csv(test_data_file,
+                       converters={test_skill_column: pd.eval})
 
 
     # Train data
     trainDataFinal = []
     for index, row in data.iterrows():
 
-        trainDataFinal.append([index + 20, 0, row["newCluster"]])
-        for element in row["NewSkills_lowercase"]:
-            trainDataFinal.append([index + 20, 1, element])
+        trainDataFinal.append([index + totalClusters, 0, row["newCluster"]])
+        for element in row[train_skill_column]:
+            trainDataFinal.append([index + totalClusters, 1, element])
 
 
     # Test data --> we only want to predicti te role so skills are added to train
     testDataFinal = []
     for index, row in test.iterrows():
 
-        testDataFinal.append([index+len(data) + 20, 0, row["newCluster"]])
-        for element in row["NewSkills_lowercase"]:
-            trainDataFinal.append([index+len(data) + 20, 1, element])
+        testDataFinal.append([index+len(data) + totalClusters, 0, row["newCluster"]])
+        for element in row[test_skill_column]:
+            trainDataFinal.append([index+len(data) + totalClusters, 1, element])
 
 
     # Save the train and test datasets to separate Excel files
@@ -122,7 +125,7 @@ def KG_data():
     # Add other categories in for ranking
 
     ids = testDf_org["head"]
-    test_data_preprocessed = np.zeros((testDf_org.shape[0] * 20, testDf_org.shape[1]))
+    test_data_preprocessed = np.zeros((testDf_org.shape[0] * totalClusters, testDf_org.shape[1]))
 
     for i in range(20):
 
@@ -137,10 +140,11 @@ def KG_data():
     testDf["relation"] = testDf["relation"].astype(int).astype(str)
     testDf["tail"] = testDf["tail"].astype(int).astype(str)
 
-    trainDf.to_csv('data/train_data_graph_new.csv', index=False)
-    testDf.to_csv('data/test_data_graph_new.csv', index=False)
+    trainDf.to_csv(train_save, index=False)
+    testDf.to_csv(test_save, index=False)
     testDf_org.to_csv('data/test_data_graph_org_new.csv', index=False)
 
+    return trainDf, testDf
     #train_data.to_csv('train_data.csv', index=False)
     #test_data.to_csv('test_data.csv', index=False)
 
