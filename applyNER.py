@@ -13,10 +13,10 @@ def extract_entities(row, descript_column = "Description"):
     return entities
     
 # call to extract skills using NER on a dataframe
-def apply_NER(in_filename = './data/Complete_Data_Clustered_Cleaned.csv', column_name = "Skills/Description", out_filename = './data/Complete_Data_Clustered_Cleaned.csv'):
+def apply_NER(in_filename = './data/Complete_Data_Clustered_Cleaned.csv', column_name = "Skills/Description", descript_column = "Description", out_filename = './data/Complete_Data_Clustered_Cleaned.csv'):
     df = pd.read_csv(in_filename)
     print("start")
-    df[column_name] = df.apply(extract_entities, axis = 1)
+    df[column_name] = df.apply(extract_entities, descript_column, axis = 1)
     print("end")
     df.to_csv(out_filename, index=False)
     #return df

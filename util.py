@@ -89,7 +89,7 @@ def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=
 def KG_data(train_data_file = './data/Complete_Data_Clustered_Cleaned.csv', test_data_file = './data/Complete_Data_Clustered_Cleaned_test.csv',
             train_skill_column = "NewSkills_lowercase", test_skill_column = "NewSkills_lowercase",
             train_save = 'data/train_data_graph_new.csv', test_save = 'data/test_data_graph_new.csv',
-            ground_truth_save = 'data/test_data_graph_org_new.csv',
+            ground_truth_save = 'data/test_data_graph_org_new.csv', write_ground_truth = True,
             totalClusters = 20):
     # Load the Excel file
 
@@ -111,8 +111,10 @@ def KG_data(train_data_file = './data/Complete_Data_Clustered_Cleaned.csv', test
     # Test data --> we only want to predicti te role so skills are added to train
     testDataFinal = []
     for index, row in test.iterrows():
-
-        testDataFinal.append([index+len(data) + totalClusters, 0, row["newCluster"]])
+        if write_ground_truth:
+            testDataFinal.append([index+len(data) + totalClusters, 0, row["newCluster"]])
+        else: 
+            testDataFinal.append([index+len(data) + totalClusters, 0, 0])
         for element in row[test_skill_column]:
             trainDataFinal.append([index+len(data) + totalClusters, 1, element])
 
@@ -143,7 +145,8 @@ def KG_data(train_data_file = './data/Complete_Data_Clustered_Cleaned.csv', test
 
     trainDf.to_csv(train_save, index=False)
     testDf.to_csv(test_save, index=False)
-    testDf_org.to_csv(ground_truth_save, index=False)
+    if write_ground_truth:
+        testDf_org.to_csv(ground_truth_save, index=False)
 
     return trainDf, testDf
     #train_data.to_csv('train_data.csv', index=False)

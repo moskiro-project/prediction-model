@@ -18,7 +18,7 @@ from util import KG_data
 class model():
 
     def __init__(self, lr=0.0005,epochs=50, batchsize=64, train_file = './data/Complete_Data_Clustered_Cleaned.csv', test_file = './data/Complete_Data_Clustered_Cleaned_test.csv',
-                 totalClusters = 20, ground_truth_file = 'data/test_data_graph_org_new.csv'):
+                 totalClusters = 20, ground_truth_file = 'data/test_data_graph_org_new.csv', write_ground_truth = True):
         self.lr = lr
         self.epochs = epochs
         self.batchsize = batchsize
@@ -30,7 +30,7 @@ class model():
                             verbose=False,large_graphs=False,)
 
 
-        tr, te = KG_data(train_file, test_file, train_save = "./data/train_data_graph_new.csv", test_save = "./data/test_data_graph_new.csv", ground_truth_save=ground_truth_file)
+        tr, te = KG_data(train_file, test_file, train_save = "./data/train_data_graph_new.csv", test_save = "./data/test_data_graph_new.csv", ground_truth_save=ground_truth_file, write_ground_truth=write_ground_truth)
         self.train_data = BaseDataset.load_from_csv(os.getcwd(), "./data/train_data_graph_new.csv", ',')
         self.test_data = BaseDataset.load_from_csv(os.getcwd(), "./data/test_data_graph_new.csv", ',')
         self.test_data = self.test_data[1:,]
