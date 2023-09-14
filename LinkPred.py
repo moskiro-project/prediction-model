@@ -21,7 +21,7 @@ class GNN(torch.nn.Module):
         self.hidden = GCNConv(256, 256, bias=False)
         self.output = GCNConv(256, 256, bias=False)
 
-    def forward(self, x, edge_index, mask=None):
+    def forward(self, x, edge_index):
         h = self.input(x, edge_index)
         X = relu(h)
         h = self.hidden(X, edge_index)
@@ -52,9 +52,9 @@ class NN(torch.nn.Module):
         return h
 
 
-class model():
+class model:
 
-    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005,epochs=50, batchsize=None):
+    def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005, epochs=50, batchsize=None):
 
         # model parameters
         self.gnn = GNN()
@@ -65,8 +65,8 @@ class model():
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.x, self.edge_index, self.y = util.create_dataset(test=load_test)
         self.optimizer = torch.optim.Adam(list(self.gnn.parameters()) + list(self.nn.parameters()), lr=lr)
-        self.epochs= epochs
-        self.lr=lr
+        self.epochs = epochs
+        self.lr = lr
         if batchsize is None:
             self.batchsize = self.edge_index.shape[1]
         else:
@@ -75,14 +75,14 @@ class model():
         self.save_model = save_model
         self.gnn.to(self.device), self.nn.to(self.device)
 
-    def train(self,plot_train=True):
+    def train(self, plot_train=True):
         criterion = torch.nn.CrossEntropyLoss()
         np.random.default_rng()
 
         # generating random permutation
         permutation = torch.randperm(self.x.shape[0] - 20)
         total_loss = []
-        error=[0]*self.epochs
+        error = [0] * self.epochs
         num_sample = 0
 
         with tqdm(range(self.epochs), desc="Training epochs") as pbar:
@@ -93,13 +93,12 @@ class model():
                     idx = permutation[i:i + self.batchsize]
                     src, tar = idx + 20, self.y[idx]
 
-
                     # add links to all "centers"
-                    links= torch.vstack((torch.asarray(src.tolist()*20),
-                                  torch.asarray(torch.arange(0,20).tolist()*src.shape[0])))
+                    links = torch.vstack((torch.asarray(src.tolist() * 20),
+                                          torch.asarray(torch.arange(0, 20).tolist() * src.shape[0])))
                     tmp = utils.to_dense_adj(self.edge_index.type(torch.int64)).squeeze()
                     tmp = utils.dense_to_sparse(tmp)[0]
-                    tmp = torch.cat((tmp, links),dim=1)
+                    tmp = torch.cat((tmp, links), dim=1)
                     graph_rep = self.gnn(self.x, tmp)
 
                     # positive sampling
@@ -114,37 +113,38 @@ class model():
                     num_sample += self.batchsize
 
                 error[j] = (sum(total_loss) / num_sample).detach()
-                if j == self.epochs-1:
+                if j == self.epochs - 1:
 
                     if self.save_model:
-                        torch.save(self.gnn.state_dict(), "model/gnn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
-                        torch.save(self.nn.state_dict(), "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
+                        torch.save(self.gnn.state_dict(),
+                                   "model/gnn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
+                        torch.save(self.nn.state_dict(),
+                                   "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                     if plot_train:
-                        util.plot_curves(self.epochs, [error],
-                                         ["Trainings Error"], 'Model Error',
-                                         file_name="GNN" + "performance")
+                        name = "GNN performance"
+                        util.plot_curves(self.epochs, [error],['Test'], 'Model Error',
+                                         file_name=name)
 
     @torch.no_grad()
-    def test(self,topk=1):
-        src, tar = torch.arange(self.x.shape[0]-self.y.shape[0],self.x.shape[0]), self.y
+    def test(self, topk=1):
+        src, tar = torch.arange(self.x.shape[0] - self.y.shape[0], self.x.shape[0]), self.y
         # add links to all "centers"
         links = torch.vstack((torch.asarray(src.tolist() * 20),
-                              torch.asarray(torch.arange(0, 20).tolist()*self.y.shape[0])))
+                              torch.asarray(torch.arange(0, 20).tolist() * self.y.shape[0])))
         tmp = utils.to_dense_adj(self.edge_index.type(torch.int64)).squeeze()
         tmp = utils.dense_to_sparse(tmp)[0]
         tmp = torch.cat((tmp, links), dim=1)
         graph_rep = self.gnn(self.x, tmp)
 
-        preds=[]
+        preds = []
         preds += [torch.sigmoid(self.nn(graph_rep[src]).cpu())]
-        preds = [torch.softmax(x,dim=1) for x in preds]
+        preds = [torch.softmax(x, dim=1) for x in preds]
         preds = [torch.topk(x, topk)[1] for x in preds]
 
         return preds
 
 
-def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=False):
-    # ----------------------- Set up globals
+def main():
     """
     # for training
         test = model(load_model=False,save_model=True,load_test=False)
@@ -153,13 +153,10 @@ def main(batchsize=1, epochs=1, save=False, train_model=True, load=False, plot=F
         test = model(load_model=True,save_model=False,load_test=True)
         test.test(3) for top 3 or test.test(n) for top n default is 1
     """
-    
 
-    test = model(load_model=False,save_model=True,load_test=False)
+    test = model(load_model=False, save_model=True, load_test=False)
     test.train()
-    #test.test(3)
-    
-    #print(test.test(3))
+
 
 if __name__ == '__main__':
     main()

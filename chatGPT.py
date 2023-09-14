@@ -3,7 +3,6 @@ import pandas as pd
 
 openai.api_key = "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"
 
-
 # This file is not supposed to be in this repo. Check GPTAPI repo if this can be deleted or should be moved.
 
 example_text = """Benenne den Berufstitel für die folgende Beschreibung mit einem Wort: Metallbauer (m/w/d): Das Handwerksunternehmen der Zukunft.
@@ -65,7 +64,6 @@ example_text = """Benenne den Berufstitel für die folgende Beschreibung mit ein
  
   Wir, die HWP Handwerkspartner AG, sind ein junges, dynamisch wachsendes Handwerksunternehmen, das 2007 gegründet wurde. Die Gruppe ist mit 15 Standorten in Deutschland und Luxemburg präsent. Eine weitsichtige Unternehmenspolitik, ein umfangreiches Prozess- und Qualitätsmanagement sowie risikobewusstes Handeln und Kundenorientierung sind gelebte Unternehmenskultur. Eine ebenfalls entscheidende Rolle für unseren Erfolg sehen wir in der konsequenten Förderung und Weiterentwicklung unserer Mitarbeiter."""
 
-
 NER_example = """Die iw-projekt GmbH ist ein international operierendes Engineering-Unternehmen, mit langjähriger Erfahrung in der Umsetzung diffiziler Maschinen- und Anlagenbauprojekte. Unser innovativer Geschäftsbereich Personaldienstleistung rekrutiert gefragte High Professionals, Ingenieure, Techniker und Facharbeiter, für interessante Kunden aus nahezu allen technischen Bereichen. Ein rundum faires Miteinander, maßgeschneiderte Coachings und eine ganzheitliche Betreuung im Prozess bringen Sie ohne Umwege zu Ihrem Traumjob!  Ab sofort suchen wir einen 
      Industriemechaniker, Fertigungsmechaniker für Montage/Service (m/w/d) ID: 21954 
      Was wir Ihnen bieten:  Unser hoch motiviertes Team steht Ihnen mit Rat und Tat zur Seite. Wir akquirieren Vorstellungstermine in dem von Ihnen definierten Umfeld und unterstützen Sie als Ihr persönlicher Dienstleister, bis Sie Ihre Wunschposition gefunden haben! Selbstverständlich mit unbefristetem Arbeitsvertrag sowie einer leistungs- und marktgerechten Vergütung. 
@@ -96,41 +94,46 @@ Berufsausbildung Fertigungsmechaniker"""
 
 
 def chatWithGPT(prompt):
-  completion = openai.ChatCompletion.create(
-  model="gpt-3.5-turbo",
-  messages=[
-  {"role": "user", "content": prompt}
-  ]
-  )
-  return completion.choices[0].message.content
-  
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return completion.choices[0].message.content
+
+
 def getJobTitle(row):
-  #make prompt to determine job title
-  #prompt = "Benenne den Berufstitel für die folgende Beschreibung mit einem Wort: " + row[0] + ": " + row[1]
-  #print(prompt)
-  prompt = example_text
-  #only keep first word of response
-  response = chatWithGPT(prompt)
-  if(response == None):
-    response = ""
-  #response = "Ingenieur"
-  return response
+    # make prompt to determine job title
+    # prompt = "Benenne den Berufstitel für die folgende Beschreibung mit einem Wort: " + row[0] + ": " + row[1]
+    # print(prompt)
+    prompt = example_text
+    # only keep first word of response
+    response = chatWithGPT(prompt)
+    if (response == None):
+        response = ""
+    # response = "Ingenieur"
+    return response
+
 
 def getSkills(row):
-  formatting_example = ""
-  prompt = "Filtere einzelne Qualifikationen aus dem folgenden Jobprofil als Liste ohne Kommentar ohne Wörter zu ändern: \"" + row[1] + "\"; und befolge dabei dieses Beispiel: " + NER_example
-  # make list
-  response = chatWithGPT(prompt).split()
-  #response = ["Technisches Zeichnen", "Systementwurf"]
-  return response
-  
+    formatting_example = ""
+    prompt = "Filtere einzelne Qualifikationen aus dem folgenden Jobprofil als Liste ohne Kommentar ohne Wörter zu ändern: \"" + \
+             row[1] + "\"; und befolge dabei dieses Beispiel: " + NER_example
+    # make list
+    response = chatWithGPT(prompt).split()
+    # response = ["Technisches Zeichnen", "Systementwurf"]
+    return response
+
+
 def process_row(row):
-  # Perform some processing on the row
-  processed_row = row
-  processed_row[3] = row[0]
-  #processed_row[0] = getJobTitle(row)
-  processed_row[1] = getSkills(row)
-  return processed_row
+    # Perform some processing on the row
+    processed_row = row
+    processed_row[3] = row[0]
+    # processed_row[0] = getJobTitle(row)
+    processed_row[1] = getSkills(row)
+    return processed_row
+
 
 # Read the input Excel file
 input_file = 'data/ReducedDataset1.xlsx'
