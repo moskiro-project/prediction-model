@@ -59,35 +59,28 @@ example_text = """Unternehmensbeschreibung
 def extract_entities(text):
     nlp_ner = spacy.load('ner_model')
     doc = nlp_ner(text)
-    
+
     entities = []
     for ent in doc.ents:
         entities.append(ent.text)
     return entities
 
-def main(text = "", doc2vec = True):
 
+def main(text="", doc2vec=True):
     print(example_text)
     input()
     result = extract_entities(example_text)
     print(result)
     input()
-    #example result for testing
-    #result = ["statistics", "feature_engineering", "scala", "aws"]
-    #pred_model = LinkPred.model(load_model=True,save_model=False,load_test=False)
-    if doc2vec :
+    if doc2vec:
         model = Doc2Vec.load("model/doc2vec_newData")
-    else: model = Word2Vec.load("model/word2vec_newData")
+    else:
+        model = Word2Vec.load("model/word2vec_newData")
     embedding = model.infer_vector(result)
     print(embedding)
     input()
-    #embedding = embedding.reshape((1, 128))
-    #print(embedding.shape)
-    #pred_model.x = torch.cat((pred_model.x, torch.from_numpy(embedding)))
-    #pred_model.y = np.asarray([0])
-    #final_prediction = pred_model.test(topk=3)
-    
-    final_prediction = model.dv.most_similar([embedding], topn = 3)
+
+    final_prediction = model.dv.most_similar([embedding], topn=3)
     print(final_prediction)
     final_prediction = [job for job, similarity in final_prediction]
     print("Final Prediction: " + str(final_prediction))
@@ -96,5 +89,3 @@ def main(text = "", doc2vec = True):
 
 if __name__ == '__main__':
     main()
-    #if(len(sys.argv) > 0):
-    #    main(sys.argv[0][0])
