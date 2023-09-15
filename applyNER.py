@@ -31,7 +31,7 @@ def main(filename='./data/NER Input.xlsx', column_name="Skills/Description"):
     print("Start")
     df[column_name] = df.apply(extract_entities, axis=1)
     print("End")
-    output_file = './data/FullDataset.xlsx'
+    output_file = './data/FullDataset_.xlsx'
     df.to_excel(output_file, index=False)
 
 

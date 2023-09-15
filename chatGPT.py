@@ -103,21 +103,19 @@ def chatWithGPT(prompt):
     return completion.choices[0].message.content
 
 
-def getJobTitle(row):
+def getJobTitle():
     # make prompt to determine job title
     # prompt = "Benenne den Berufstitel für die folgende Beschreibung mit einem Wort: " + row[0] + ": " + row[1]
     # print(prompt)
     prompt = example_text
     # only keep first word of response
     response = chatWithGPT(prompt)
-    if (response == None):
+    if response is None:
         response = ""
-    # response = "Ingenieur"
     return response
 
 
 def getSkills(row):
-    formatting_example = ""
     prompt = "Filtere einzelne Qualifikationen aus dem folgenden Jobprofil als Liste ohne Kommentar ohne Wörter zu ändern: \"" + \
              row[1] + "\"; und befolge dabei dieses Beispiel: " + NER_example
     # make list
@@ -126,12 +124,15 @@ def getSkills(row):
     return response
 
 
-def process_row(row):
+def process_row(row,skills = True):
     # Perform some processing on the row
     processed_row = row
     processed_row[3] = row[0]
-    # processed_row[0] = getJobTitle(row)
-    processed_row[1] = getSkills(row)
+    if skills:
+        processed_row[1] = getSkills(row)
+    else :
+        processed_row[0] = getJobTitle(row)
+
     return processed_row
 
 

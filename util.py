@@ -37,8 +37,6 @@ def create_dataset(doc2vec=True, test=True):
 
     df = pd.read_csv("data/Complete_Data_Clustered_Cleaned.csv", converters={"Skills/Description": pd.eval})
 
-    # Todo for word2vec
-    # Todo incorperate test
     embbedding = df["Skills/Description"].apply(lambda w: model.infer_vector(w))
     x, edge_index = create_edgeindex(embbedding, df)
     y = torch.from_numpy(df["newCluster"].to_numpy())
@@ -54,7 +52,7 @@ def create_dataset(doc2vec=True, test=True):
     return x, edge_index, y
 
 
-def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=False):
+def plot_curves(epochs, curves, title, file_name="errors.pdf", combined=False):
     # we assume all curves have the same length
     # if we use combined we also assume that loss is always the last
     if combined:
@@ -64,7 +62,6 @@ def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=
         fig, axs = plt.subplots()
 
     x = np.arange(1, len(curves[0]) + 1)
-    # TODO somehow we still have the legend thingy in there
     colors = ["mediumslateblue", "plum", "mediumslateblue"]
     for i in range(len(curves)):
         if i == len(curves) - 1 and combined:  # last elem
@@ -79,17 +76,15 @@ def plot_curves(epochs, curves, labels, title, file_name="errors.pdf", combined=
     plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     plt.xlim([1, epochs])
     plt.subplots_adjust(wspace=0.4)
-    # plt.legend()
-    plt.savefig("plots/" + file_name + ".jpg")
+    plt.savefig(file_name + ".jpg")
     plt.show()
 
 
-# would be good to adapt this to take any file names, too
 def KG_data(train_data_file='./data/Complete_Data_Clustered_Cleaned.csv',
             test_data_file='./data/Complete_Data_Clustered_Cleaned_test.csv',
             train_skill_column="NewSkills_lowercase", test_skill_column="NewSkills_lowercase",
-            train_save='data/train_data_graph_new.csv', test_save='data/test_data_graph_new.csv',
-            ground_truth_save='data/test_data_graph_org_new.csv', write_ground_truth=True,
+            train_save='data/KG_train_data_graph_new.csv', test_save='data/KG_test_data_graph_new.csv',
+            ground_truth_save='data/KG_test_data_graph_org_new.csv', write_ground_truth=True,
             totalClusters=20):
     # Load the Excel file
 
@@ -144,8 +139,6 @@ def KG_data(train_data_file='./data/Complete_Data_Clustered_Cleaned.csv',
         testDf_org.to_csv(ground_truth_save, index=False)
 
     return trainDf, testDf
-    # train_data.to_csv('train_data.csv', index=False)
-    # test_data.to_csv('test_data.csv', index=False)
 
 
 def split_data(file="data/Complete Data Clustered Cleaned.xlsx", verbose=False):

@@ -12,15 +12,11 @@ from Emgraph2.emgraph.evaluation.protocol import filter_unseen_entities
 from util import KG_data
 
 
-# This needs to be extended to have a proper interface for training and testing!
-# Since this graph doesn't have save+load mechanisms, we would need to keep the object around in the testing/evaluation script!
-# Check carefully whether all invalid cases are caught here, e.g. what to do if NER didn't give any results and if everything is formatted in a standardized way
-
 class model:
 
     def __init__(self, lr=0.0005, epochs=50, batchsize=64, train_file='./data/Complete_Data_Clustered_Cleaned.csv',
                  test_file='./data/Complete_Data_Clustered_Cleaned_test.csv',
-                 totalClusters=20, ground_truth_file='data/test_data_graph_org_new.csv', write_ground_truth=True):
+                 totalClusters=20, ground_truth_file='data/KG_test_data_graph_org_new.csv', write_ground_truth=True):
         self.lr = lr
         self.epochs = epochs
         self.batchsize = batchsize
@@ -31,13 +27,13 @@ class model:
                             eta=10, optimizer="adam", optimizer_params={"lr": self.lr}, loss="pairwise",
                             verbose=False, large_graphs=False, )
         # creates the files needed for the emgraph model
-        KG_data(train_file, test_file, train_save="./data/train_data_graph_new.csv",
-                test_save="./data/test_data_graph_new.csv",
+        KG_data(train_file, test_file, train_save="./data/KG_train_data_graph_new.csv",
+                test_save="./data/KG_test_data_graph_new.csv",
                 ground_truth_save=ground_truth_file,
                 write_ground_truth=write_ground_truth)
 
-        self.train_data = BaseDataset.load_from_csv(os.getcwd(), "./data/train_data_graph_new.csv", ',')
-        self.test_data = BaseDataset.load_from_csv(os.getcwd(), "./data/test_data_graph_new.csv", ',')
+        self.train_data = BaseDataset.load_from_csv(os.getcwd(), "data/KG_train_data_graph_new.csv", ',')
+        self.test_data = BaseDataset.load_from_csv(os.getcwd(), "data/KG_test_data_graph_new.csv", ',')
         self.test_data = self.test_data[1:, ]
 
     def train(self):
@@ -73,13 +69,10 @@ def main():
 
     test = model()
 
-    print(test.test_data.shape)
-    print(test.train_data.shape)
-
     test.train()
     output = test.test(3)
     df = pd.DataFrame(output, columns=["Person", "Top3 Predictions"])
-    df.to_csv("GraphResults.csv")
+    df.to_csv("./data/GraphResults.csv")
 
 
 if __name__ == "__main__":

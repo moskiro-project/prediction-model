@@ -122,7 +122,7 @@ class model:
                                    "model/nn_" + str(self.batchsize) + "_" + str(self.epochs) + "_" + str(self.lr))
                     if plot_train:
                         name = "GNN performance"
-                        util.plot_curves(self.epochs, [error],['Test'], 'Model Error',
+                        util.plot_curves(self.epochs, [error], 'Model Error',
                                          file_name=name)
 
     @torch.no_grad()
@@ -160,4 +160,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-# Todo which activation function ?
