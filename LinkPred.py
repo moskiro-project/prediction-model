@@ -11,9 +11,8 @@ import util
 
 class GNN(torch.nn.Module):
     """
-    3-layer GNN with 128 input- and 256 output- and hidden neurons
+    Class for the three layer GCN with input dimension size of 100 x 256  and hidden/output dimension 256x256
     """
-
     def __init__(self):
         # build GNN here
         super(GNN, self).__init__()
@@ -32,7 +31,7 @@ class GNN(torch.nn.Module):
 
 class NN(torch.nn.Module):
     """
-    3-Layer MLP with 256 input and hidden neurons and 1 output neuron
+    3-Layer NN with 256 input and hidden neurons and 20 output neuron
     """
 
     def __init__(self):
@@ -53,9 +52,19 @@ class NN(torch.nn.Module):
 
 
 class model:
-
+    """
+    Link prediction model class
+    """
     def __init__(self, load_model=False, load_test=True, save_model=True, lr=0.0005, epochs=50, batchsize=None):
-
+        """
+        initializes the model
+        :param load_model: boolean, wether load a pretrained model from disk or not
+        :param load_test: boolean, should the test set be loaded or not
+        :param save_model: boolean, should the model be saved to disk or not
+        :param lr: learning rate for the GCN & NN
+        :param epochs: number of trainings epochs
+        :param batchsize: batchsize for the training procedure
+        """
         # model parameters
         self.gnn = GNN()
         self.nn = NN()

@@ -135,14 +135,3 @@ def process_row(row,skills = True):
 
     return processed_row
 
-
-# Read the input Excel file
-input_file = 'data/ReducedDataset1.xlsx'
-df = pd.read_excel(input_file)
-
-# Apply the process_row function to each row
-processed_rows = df.apply(process_row, axis=1)
-
-# Write the processed rows to a new Excel file
-output_file = 'data/output.xlsx'
-processed_rows.to_excel(output_file, index=False)

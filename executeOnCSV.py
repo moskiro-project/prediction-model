@@ -6,7 +6,7 @@ from gensim.models import Word2Vec
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import TaggedDocument
 import sys
-import KG_model as graph
+#import KG_model as graph
 import LinkPred
 
 sys.path.append('./Emgraph2/emgraph')
@@ -60,4 +60,4 @@ def main(filename, desc_column_name, selectedModel, topPreds):
 
     return model_out
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[4], sys.argv[5])
+    main()

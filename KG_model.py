@@ -13,10 +13,23 @@ from util import KG_data
 
 
 class model:
-
+    """
+    Knowledge Graph model class
+    """
     def __init__(self, lr=0.0005, epochs=50, batchsize=64, train_file='./data/Complete_Data_Clustered_Cleaned.csv',
                  test_file='./data/Complete_Data_Clustered_Cleaned_test.csv',
                  totalClusters=20, ground_truth_file='data/KG_test_data_graph_org_new.csv', write_ground_truth=True):
+        """
+
+        :param lr: learning rate for the model
+        :param epochs: number of trainings epochs
+        :param batchsize: batchsize for trainings procedure
+        :param train_file: trainings file to load
+        :param test_file: testfile to load
+        :param totalClusters: number of cluster used
+        :param ground_truth_file: ground truth file to load
+        :param write_ground_truth: boolean, wether to save the ground truth to disk
+        """
         self.lr = lr
         self.epochs = epochs
         self.batchsize = batchsize
