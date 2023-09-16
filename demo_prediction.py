@@ -73,9 +73,9 @@ def main(text="", doc2vec=True):
     print(result)
     input()
     if doc2vec:
-        model = Doc2Vec.load("model/doc2vec_newData")
+        model = Doc2Vec.load("model/doc2vec")
     else:
-        model = Word2Vec.load("model/word2vec_newData")
+        model = Word2Vec.load("model/word2vec")
     embedding = model.infer_vector(result)
     print(embedding)
     input()

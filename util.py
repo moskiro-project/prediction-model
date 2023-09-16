@@ -43,9 +43,9 @@ def create_dataset(doc2vec=True, test=True):
     :return: features, edgeindex, ground truth
     """
     if doc2vec:
-        model = Doc2Vec.load("model/doc2vec_newData")
+        model = Doc2Vec.load("model/doc2vec")
     else:
-        model = Word2Vec.load("model/word2vec_newData")
+        model = Word2Vec.load("model/word2vec")
     df = pd.read_csv("data/Complete_Data_Clustered_Cleaned.csv", converters={"Skills/Description": pd.eval})
 
     embbedding = df["Skills/Description"].apply(lambda w: model.infer_vector(w))
